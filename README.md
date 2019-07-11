@@ -1,2 +1,2 @@
 # marvin-telebot
-Telegram bot in Go, just for lulz
+Telegram bot written in Go, designed for delving in Go
