@@ -2,6 +2,8 @@ github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gin-gonic/gin v0.0.0-20150626140855-4cc2de6207f4 h1:ufr+93X0/9xTNvObfvbHsEkgCk8BrhmUH83Z8YIhzXE=
 github.com/gin-gonic/gin v0.0.0-20150626140855-4cc2de6207f4/go.mod h1:7cKuhb5qV2ggCFctp2fJQ+ErvciLZrIeoOSOm6mUr7Y=
+github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible h1:2cauKuaELYAEARXRkq2LrJ0yDDv1rW7+wrTEdVL3uaU=
+github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible/go.mod h1:qf9acutJ8cwBUhm1bqgz6Bei9/C/c93FPDljKWwsOgM=
 github.com/heroku/x v0.0.0-20171004170240-705849e307dd h1:zn29UrzyUeQgqxBGXIwQqQJf75IiK4aeCtO5q1V2Vyo=
 github.com/heroku/x v0.0.0-20171004170240-705849e307dd/go.mod h1:opmAyjmIGn9/Y+9Nia6eIaktIXIoMhhFXEFbHLMsX3Y=
 github.com/manucorporat/sse v0.0.0-20150604091100-c142f0f1baea h1:3she1OMibtVtGiZSF65Cfi5ijRb+pAKXmstffNs5i+4=
@@ -15,7 +17,12 @@ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZN
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.3.0 h1:TivCn/peBQ7UY8ooIcPgZFpTNSz0Q2U6UrFlUfqbe0Q=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
+github.com/technoweenie/multipartstreamer v1.0.1 h1:XRztA5MXiR1TIRHxH2uNxXxaIkKQDeX7m2XsSOlQEnM=
+github.com/technoweenie/multipartstreamer v1.0.1/go.mod h1:jNVxdtShOxzAsukZwTSw6MDx5eUJoiEBsSvzDU9uzog=
 golang.org/x/net v0.0.0-20150629084131-d9558e5c97f8 h1:NnqNZS6fS9JZOjzXyL3/g0j4bEm1B7HCkiVH9F5Zu8U=
 golang.org/x/net v0.0.0-20150629084131-d9558e5c97f8/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
 gopkg.in/bluesuncorp/validator.v5 v5.9.1 h1:XEU2HtMj0Rki3kmHh+uilvENyWgDEaR5LDLtYsjiumM=
 gopkg.in/bluesuncorp/validator.v5 v5.9.1/go.mod h1:ScQmud/GM3iSR85jRE+8BI8E8oFv5oj4qyd5Xaw7hgE=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v2 v2.2.2 h1:ZCJp+EgiOT7lHqUV2J862kp8Qj64Jo6az82+3Td9dZw=
+gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=

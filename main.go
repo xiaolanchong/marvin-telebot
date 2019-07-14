@@ -33,15 +33,19 @@ func runHeroku() {
 	router.Run(":" + port)
 }
 
-func runPuller() {
-	bot_token := os.Getenv("BOT_TOKEN")
-	if len(bot_token) == 0 {
+func runTelebot() {
+	fmt.Printf("Starting pulling bot...\n")
+	
+	botToken := os.Getenv("BOT_TOKEN")
+	if len(botToken) == 0 {
 		panic("BOT_TOKEN env variable not set")
 	}
-
-	puller, _ := bot.New(500, bot_token)
-	defer puller.Close()
-
+	
+	newBot, updates, err := bot.StartTeleBot(botToken)
+	if err != nil {
+		panic(err)
+	}
+	
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go func(){
@@ -50,8 +54,8 @@ func runPuller() {
 			{
 			case <- c:
 				os.Exit(1)
-			case update := <- puller.UpdatesChannel:
-				fmt.Printf("New msg: %+v\n", update)
+			case update := <- updates:
+				bot.ProcessTeleBotUpdate(newBot, update)
 			}
 		}
 	}()
@@ -60,6 +64,5 @@ func runPuller() {
 
 func main() {
 	// runHeroku()
-	runPuller()
-
+	runTelebot()
 }
