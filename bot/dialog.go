@@ -3,15 +3,8 @@ package bot
 import (
 	"log"
 	"time"
+//	"path/filepath"
 )
-/*
-type MessageType = int8
-
-const (
-	Ordinal		MessageType = 0
-	DialogEnd	MessageType = 1
-)
-*/
 
 type command struct {
 	Command		string
@@ -26,42 +19,32 @@ type action struct {
 
 type ActionChannel chan action
 
-type Sender func(text string)
-
 type Dialog struct {
 	Username		string
 	Sender			Sender
 	ActionChannel	ActionChannel
 	Timeout			time.Duration
 	Timer			*time.Timer
-	QuizState		*QuizState
+	DialogHandler	DialogHandler
 }
 
-var unitData []Unit
-const quizFilePath = "data/Intermediate Korean - a Grammar and Workbook.yaml"
-const altQuizFilePath = "bot/" + quizFilePath
 
-func NewDialog(Sender Sender, timeout time.Duration, username string) *Dialog {
-	if unitData == nil {
-		var err error
-		unitData, err = LoadUnits(quizFilePath)
-		if err != nil {
-			log.Printf("Error on loading exercise data: %v", err)
-			unitData, err = LoadUnits(altQuizFilePath)
-			if err != nil {
-				log.Printf("Error on loading exercise data: %v", err)
-			}
-		}
-	}
-
+func NewDialog(Sender Sender, timeout time.Duration, username string, dataRootDir string) *Dialog {
 	this := &Dialog{
 		Username: username,
 		Sender: Sender,
 		Timer: time.NewTimer(timeout),
 		Timeout: timeout,
 		ActionChannel: make(ActionChannel),
+		//DialogHandler: dialogHandler,
 	}
 	this.Timer.Stop()
+	systemHandler := &SystemDialogHandler{Sender: Sender}
+	var err error
+	this.DialogHandler, err = NewInputTestHandler(systemHandler, Sender, dataRootDir)
+	if err != nil {
+		return nil
+	}
 
 	go func() {
 		for range this.Timer.C {
@@ -78,14 +61,15 @@ func NewDialog(Sender Sender, timeout time.Duration, username string) *Dialog {
 			} else if(act.Message != nil) {
 				log.Printf("[%s]Message %s received", this.Username, *act.Message)
 				this.stopTimer()
-				var textResponse string
-				textResponse, this.QuizState = ProcessMessage(*act.Message, unitData, this.QuizState)
-				this.Sender(textResponse)
+				//var textResponse string
+				this.DialogHandler.ProcessMessage(*act.Message)
+				//this.Sender(textResponse)
 				
 			} else if(act.Command != nil) {
 				this.stopTimer()
 				var textResponse string
-				textResponse, this.QuizState = ProcessCommand(act.Command.Command, act.Command.Args, this.Username, unitData, this.QuizState)
+				//textResponse, this.QuizState = ProcessCommand(act.Command.Command, act.Command.Args, this.Username, unitData, this.QuizState)
+				this.DialogHandler.ProcessCommand(act.Command.Command, act.Command.Args)
 				log.Printf("[%s]Command %+v received", this.Username, *act.Command)
 				if len(textResponse) != 0 {
 					this.Sender(textResponse)

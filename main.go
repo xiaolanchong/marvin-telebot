@@ -41,6 +41,8 @@ func runTelebot() {
 		panic("BOT_TOKEN env variable not set")
 	}
 	
+	dataRootDir := os.Getenv("DATA_ROOT")
+	
 	newBot, updates, err := bot.StartTeleBot(botToken)
 	if err != nil {
 		panic(err)
@@ -55,7 +57,7 @@ func runTelebot() {
 			case <- c:
 				os.Exit(1)
 			case update := <- updates:
-				bot.ProcessTeleBotUpdate(newBot, update)
+				bot.ProcessTeleBotUpdate(newBot, update, dataRootDir)
 			}
 		}
 	}()

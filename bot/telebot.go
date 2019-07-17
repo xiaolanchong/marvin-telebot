@@ -27,7 +27,7 @@ func StartTeleBot(botToken string) (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel, e
 	return bot, updates, err
 }
 
-func ProcessTeleBotUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
+func ProcessTeleBotUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, dataRootDir string) {
 	if update.Message == nil {
 		return
 	}
@@ -41,11 +41,22 @@ func ProcessTeleBotUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 						msg := tgbotapi.NewMessage(message.Chat.ID, "")
 						msg.ParseMode = tgbotapi.ModeMarkdown
 						msg.Text = msgText
+						/*a := "1"
+						msg.ReplyMarkup = &tgbotapi.InlineKeyboardMarkup{
+											InlineKeyboard: [][]tgbotapi.InlineKeyboardButton{ 
+																[]tgbotapi.InlineKeyboardButton{ 
+																	tgbotapi.InlineKeyboardButton{Text: "1", CallbackData: &a, },
+																	tgbotapi.InlineKeyboardButton{Text: "2", CallbackData: &a, },
+																},
+											},
+										  }
+						*/
 						bot.Send(msg)
 					}
 		dialog = NewDialog( sender,
 							time.Second * 30,
-							message.Chat.UserName)
+							message.Chat.UserName,
+							dataRootDir)
 	}
 
 	if message.IsCommand() {
