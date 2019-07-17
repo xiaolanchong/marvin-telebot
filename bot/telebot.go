@@ -37,10 +37,10 @@ func ProcessTeleBotUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, dataRoot
 	log.Printf("[%s] %s", message.From.UserName, message.Text)
 	
 	if(dialog == nil) {
-		sender := func (msgText string) {
+		sender := func (outMsg OutMessage) {
 						msg := tgbotapi.NewMessage(message.Chat.ID, "")
 						msg.ParseMode = tgbotapi.ModeMarkdown
-						msg.Text = msgText
+						msg.Text = outMsg.Text
 						/*a := "1"
 						msg.ReplyMarkup = &tgbotapi.InlineKeyboardMarkup{
 											InlineKeyboard: [][]tgbotapi.InlineKeyboardButton{ 
@@ -53,10 +53,15 @@ func ProcessTeleBotUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, dataRoot
 						*/
 						bot.Send(msg)
 					}
+		//systemHandler := 
+		dialogHandler, errDlgHndl := NewInputTestHandler(sender, dataRootDir)
+		if errDlgHndl != nil {
+			return
+		}
 		dialog = NewDialog( sender,
 							time.Second * 30,
 							message.Chat.UserName,
-							dataRootDir)
+							dialogHandler)
 	}
 
 	if message.IsCommand() {

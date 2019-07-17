@@ -24,13 +24,13 @@ type InputTestHandler struct {
 	QuizState		*QuizState
 }
 
-
 const quizFilePath = "Intermediate Korean - a Grammar and Workbook"
 const quizFileName = "exercises.yaml"
 
 var input_unitData []Unit
 
-func NewInputTestHandler(systemHandler DialogHandler, sender Sender, dataRootDir string) (*InputTestHandler, error){
+func NewInputTestHandler(sender Sender, dataRootDir string) (*InputTestHandler, error){
+	systemHandler := &SystemDialogHandler{ Sender: sender }
 	if input_unitData == nil {
 		var err error
 		fullName :=  filepath.Join(dataRootDir, quizFilePath, quizFileName)
@@ -44,7 +44,6 @@ func NewInputTestHandler(systemHandler DialogHandler, sender Sender, dataRootDir
 	return &InputTestHandler {
 		SystemHandler: systemHandler,
 		Sender:        sender,
-		//QuizState:     quizState,
 	}, nil
 }
 
@@ -60,21 +59,21 @@ func (handler *InputTestHandler) ProcessCommand(cmdText string, args []string) {
 	
 	handler.QuizState = quizState
 	if len(msg) != 0 {
-		handler.Sender(msg)
+		handler.Sender(OutMessage{Text: msg})
 	}
 }
 
 func (handler *InputTestHandler) ProcessMessage(msg string) {
 	if handler.QuizState == nil {
 		msg := fmt.Sprintf("Давайте начнём тест командой /%s", cmdTest)
-		handler.Sender(msg)
+		handler.Sender(OutMessage{Text: msg})
 		return
 	}
 	
 	var msgOut string
 	msgOut, handler.QuizState = input_ProcessMessage(msg, input_unitData, handler.QuizState)
 	if len(msgOut) != 0 {
-		handler.Sender(msgOut)
+		handler.Sender(OutMessage{Text: msgOut})
 	}
 }
 

@@ -23,6 +23,13 @@ type DialogHandler interface {
 	ProcessKeyboard(key string)
 }
 
-type Sender func(text string)
+type KeyboardLayout = [][]string
+
+type OutMessage struct {
+	Text		string
+	Keyboard	KeyboardLayout
+}
+
+type Sender func(msg OutMessage)
 
 

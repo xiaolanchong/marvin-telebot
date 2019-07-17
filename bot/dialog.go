@@ -3,7 +3,6 @@ package bot
 import (
 	"log"
 	"time"
-//	"path/filepath"
 )
 
 type command struct {
@@ -29,20 +28,20 @@ type Dialog struct {
 }
 
 
-func NewDialog(Sender Sender, timeout time.Duration, username string, dataRootDir string) *Dialog {
+func NewDialog(Sender Sender, timeout time.Duration, username string, dlgHandler DialogHandler) *Dialog {
 	this := &Dialog{
 		Username: username,
 		Sender: Sender,
 		Timer: time.NewTimer(timeout),
 		Timeout: timeout,
 		ActionChannel: make(ActionChannel),
-		//DialogHandler: dialogHandler,
+		DialogHandler: dlgHandler,
 	}
 	this.Timer.Stop()
-	systemHandler := &SystemDialogHandler{Sender: Sender}
-	var err error
-	this.DialogHandler, err = NewInputTestHandler(systemHandler, Sender, dataRootDir)
-	if err != nil {
+	//systemHandler := &SystemDialogHandler{Sender: Sender}
+	//var err error
+	//this.DialogHandler, err = NewInputTestHandler(systemHandler, Sender, dataRootDir)
+	if this.DialogHandler == nil {
 		return nil
 	}
 
@@ -56,23 +55,20 @@ func NewDialog(Sender Sender, timeout time.Duration, username string, dataRootDi
 		for act := range this.ActionChannel {
 			if(act.Timeout) {
 				log.Printf("[%s]Timeout received", this.Username)
-				this.Sender("Conversation ended")
+				this.Sender(OutMessage{Text: "Conversation ended"} )
 				
 			} else if(act.Message != nil) {
 				log.Printf("[%s]Message %s received", this.Username, *act.Message)
 				this.stopTimer()
-				//var textResponse string
 				this.DialogHandler.ProcessMessage(*act.Message)
-				//this.Sender(textResponse)
 				
 			} else if(act.Command != nil) {
 				this.stopTimer()
 				var textResponse string
-				//textResponse, this.QuizState = ProcessCommand(act.Command.Command, act.Command.Args, this.Username, unitData, this.QuizState)
 				this.DialogHandler.ProcessCommand(act.Command.Command, act.Command.Args)
 				log.Printf("[%s]Command %+v received", this.Username, *act.Command)
 				if len(textResponse) != 0 {
-					this.Sender(textResponse)
+					this.Sender(OutMessage{Text: textResponse})
 				}
 			}
 		}

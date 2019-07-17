@@ -19,20 +19,22 @@ type SystemDialogHandler struct {
 }
 
 func (handler *SystemDialogHandler) ProcessCommand(cmdText string, args []string) {
+	var outMsg string
 	switch(cmdText) {
 	case cmdStart:
-		handler.Sender( "언녕하세요! Марвин - телеграм-бот для тестирования ваших знаний корейского языка. " +
-						"Введите /help для вывода списка команд")
+		outMsg = "언녕하세요! Марвин - телеграм-бот для тестирования ваших знаний корейского языка. " +
+						"Введите /help для вывода списка команд"
 	case cmdHelp:
-		handler.Sender( helpMessage)
+		outMsg = helpMessage
 	default:
-		handler.Sender( "Не знаю такой команды: " + cmdText )
+		outMsg = ( "Не знаю такой команды: " + cmdText )
 	}
+	handler.Sender(OutMessage{Text: outMsg})
 }
 
 func (handler *SystemDialogHandler) ProcessMessage(msg string) {
 	outMsg := fmt.Sprintf("Давайте начнём тест командой /%s", cmdTest)
-	handler.Sender(outMsg)
+	handler.Sender(OutMessage{Text: outMsg})
 }
 
 func (handler *SystemDialogHandler) ProcessKeyboard(key string) {
