@@ -37,7 +37,7 @@ func keyboardToMarkup(keyboard KeyboardLayout) tgbotapi.InlineKeyboardMarkup {
 				layout[row][col] = 
 					tgbotapi.InlineKeyboardButton{
 							Text: colItem.Text,
-							CallbackData: &colItem.Id,
+							CallbackData: &rowItem[col].Id,
 					}
 			}
 		}

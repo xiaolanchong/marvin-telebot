@@ -29,7 +29,6 @@ type Dialog struct {
 	DialogHandler	DialogHandler
 }
 
-
 func NewDialog(Sender Sender, timeout time.Duration, username string, dlgHandler DialogHandler) *Dialog {
 	this := &Dialog{
 		Username: username,
@@ -40,9 +39,6 @@ func NewDialog(Sender Sender, timeout time.Duration, username string, dlgHandler
 		DialogHandler: dlgHandler,
 	}
 	this.Timer.Stop()
-	//systemHandler := &SystemDialogHandler{Sender: Sender}
-	//var err error
-	//this.DialogHandler, err = NewInputTestHandler(systemHandler, Sender, dataRootDir)
 	if this.DialogHandler == nil {
 		return nil
 	}

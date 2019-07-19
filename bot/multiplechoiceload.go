@@ -9,9 +9,10 @@ import(
 
 type MultipleChoiceQuestion struct {
 	Text    string    `json:"text"`
+	Audio   string    `json:"audio,omitempty"`
 	Choice  []string  `json:"choice"`
 	Answer  string    `json:"answer"`
-	Comment string    `json:"comment"`
+	Comment string    `json:"comment,omitempty"`
 }
 
 type MultipleChoiceSection struct {

@@ -10,10 +10,12 @@ import (
 type NavigationHandler struct{
 	Sender			Sender
 	Menu			*MenuLayout
+	ChildHandler	DialogHandler
 }
 
 func (handler *NavigationHandler) startTest(questions []MultipleChoiceQuestion, title string) {
-	handler.Sender(OutMessage{Text: "Selected " + title})
+	//handler.Sender(OutMessage{Text: "Selected " + title})
+	handler.ChildHandler, _ = NewMultipleChoiceHandler(handler.Sender, questions)
 }
 
 func NewNavigationHandler(sender Sender,
@@ -37,14 +39,14 @@ func NewNavigationHandler(sender Sender,
 	}
 	
 	for _, section := range(dataRoot.Section) {
-		navHandler.Menu.AddItem(firstLevel, section.Title, func() { 
+		navHandler.Menu.AddItem(firstLevel, section.Title, func() {
+			navHandler.Menu.Hide()
 			navHandler.startTest(section.Question, section.Title) 
 		})
 	}
 	navHandler.Menu.AddItem(firstLevel, "< Back", func() { 
 		navHandler.Menu.GoUp()
-		navHandler.Menu.GoUp()
-	//	log.Printf("Go up: %+v", "zz")
+		navHandler.Menu.GoUp()  // TODO: don't select terminal menu item
 	})
 
 	return navHandler, nil
@@ -63,6 +65,8 @@ func menuToKeyboard(menuLayout []MenuIdAndText) KeyboardLayout {
 }
 
 func (handler *NavigationHandler) ProcessCommand(cmdText string, args []string) {
+	handler.ChildHandler = nil
+
 	var outMsg string
 	var keyboard KeyboardLayout
 	switch(cmdText) {
@@ -87,7 +91,7 @@ func (handler *NavigationHandler) ProcessMessage(msg string) {
 	handler.Sender(OutMessage{Text: outMsg})
 }
 
-func (handler *NavigationHandler) ProcessKeyboard(keyId string, messageId int) {
+func (handler *NavigationHandler) processMyKey(keyId string, messageId int) {
 	intId, err := strconv.Atoi(keyId)
 	if err != nil {
 		log.Printf("Error converting key id to int: %v", err)
@@ -101,4 +105,12 @@ func (handler *NavigationHandler) ProcessKeyboard(keyId string, messageId int) {
 				IsKeyboardMsg:    true,
 			}
 	handler.Sender(outMsg)
+}
+
+func (handler *NavigationHandler) ProcessKeyboard(keyId string, messageId int) {
+	if handler.ChildHandler != nil {
+		handler.ChildHandler.ProcessKeyboard(keyId, messageId)
+	} else {
+		handler.processMyKey(keyId, messageId)
+	}
 }

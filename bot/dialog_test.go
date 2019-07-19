@@ -62,11 +62,6 @@ func TestDialog_GrammarBook(t *testing.T) {
 }
 
 func TestDialog_Input_StartCommand(t *testing.T) {
-	
-	//msgs := make([]string, 0, 10)
-	//sender := func (text string) { 
-	///		   msgs = append(msgs, text)
-	//		}
 	sender := MsgKeeper{}
 	hndl, _ := NewInputTestHandler(sender.Send, dataRootDir)
 	dlg := NewDialog(sender.Send,
