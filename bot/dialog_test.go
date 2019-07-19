@@ -153,32 +153,22 @@ func Test_LoadMultipleChoiceTest(t *testing.T) {
 }
 
 func TestDialog_MultipleChoice_Take1stTest(t *testing.T) {
-/*	msgs := make([]string, 0, 20)
-	keyboards := make([]KeyboardLayout, 0, 20)
-	sender := func (text string) { 
-			   msgs = append(msgs, text)
-			}
-	kbdSender := func (text string, kbd KeyboardLayout) { 
-			   msgs = append(msgs, text)
-			}
-	hndl, _ := NewInputTestHandler(sender, dataRootDir)
-	dlg := NewDialog(sender,
-			time.Second * 5,
-			"nemo", hndl)
-	dlg.OnCommand("test", []string{ "1.1" })
+	sender := MsgKeeper{}
+	hndl, _ := NewNavigationHandler(sender.Send, dataRootDir)
+	dlg := NewDialog(sender.Send, time.Second * 5, "nemo", hndl)
+	dlg.OnCommand("start", []string{})
 	time.Sleep(time.Second * 1)
+	msgs := sender.OutMessages
 	if(len(msgs) != 1) {
 		t.Errorf("1 message expected: %v message(s)", len(msgs))
 	}
-	if(len(msgs[0]) != 401) {
-		t.Errorf("Incorrect message length: %v bytes, %+v", len(msgs[0]), msgs[0])
+	if(len(msgs[0].Text) != 194) {
+		t.Errorf("Incorrect message length: %v bytes, %+v", len(msgs[0].Text), msgs[0])
 	}
-	msgs = make([]string, 0, 20)
-	for i := 0; i < 10; i++ {
-		dlg.OnMessage("11")
-		time.Sleep(time.Millisecond * 50)
+	if(len(msgs[0].Keyboard) != 1) {
+		t.Errorf("Incorrect message length: %v bytes, %+v", len(msgs[0].Keyboard), msgs[0])
 	}
-	if len(msgs) != 10 {
-		t.Errorf("Incorrect messages: %v bytes, \n\n%+v", len(msgs), msgs)
-	}*/
+	if(len(msgs[0].Keyboard[0]) != 1) {
+		t.Errorf("Incorrect message length: %v bytes, %+v", len(msgs[0].Keyboard[0]), msgs[0])
+	}
 }

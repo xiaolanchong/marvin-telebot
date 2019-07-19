@@ -77,7 +77,7 @@ func (handler *InputTestHandler) ProcessMessage(msg string) {
 	}
 }
 
-func (handler *InputTestHandler) ProcessKeyboard(key string) {
+func (handler *InputTestHandler) ProcessKeyboard(key string, messageId int) {
 	log.Printf("Handler of %s not implemented", key)
 }
 

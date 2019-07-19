@@ -1,8 +1,10 @@
 package bot
 
 import (
-	"fmt"
+	//"fmt"
 )
+
+var promptToStart = "Давайте начнём тест командой /" + cmdStart
 
 var helpMessage = "Марвин - телеграм-бот для тестирования корейского языка.\n" +
 				"Команды:\n" +
@@ -27,16 +29,15 @@ func (handler *SystemDialogHandler) ProcessCommand(cmdText string, args []string
 	case cmdHelp:
 		outMsg = helpMessage
 	default:
-		outMsg = ( "Не знаю такой команды: " + cmdText )
+		outMsg = "Не знаю такой команды: " + cmdText
 	}
 	handler.Sender(OutMessage{Text: outMsg})
 }
 
 func (handler *SystemDialogHandler) ProcessMessage(msg string) {
-	outMsg := fmt.Sprintf("Давайте начнём тест командой /%s", cmdTest)
-	handler.Sender(OutMessage{Text: outMsg})
+	handler.Sender(OutMessage{Text: promptToStart})
 }
 
-func (handler *SystemDialogHandler) ProcessKeyboard(key string) {
+func (handler *SystemDialogHandler) ProcessKeyboard(key string, messageId int) {
 }
 

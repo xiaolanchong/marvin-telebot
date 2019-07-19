@@ -20,14 +20,21 @@ const (
 type DialogHandler interface {
 	ProcessCommand(cmdText string, args []string)
 	ProcessMessage(msg string)
-	ProcessKeyboard(key string)
+	ProcessKeyboard(key string, messageId int)
 }
 
-type KeyboardLayout = [][]string
+type Key struct {
+	Id		string
+	Text	string
+}
+
+type KeyboardLayout = [][]Key
 
 type OutMessage struct {
 	Text		string
 	Keyboard	KeyboardLayout
+	IsKeyboardMsg	bool
+	ReplyToMessageId		int
 }
 
 type Sender func(msg OutMessage)

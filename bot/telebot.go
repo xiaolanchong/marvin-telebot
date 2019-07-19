@@ -8,7 +8,7 @@ import (
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-var dialog *Dialog
+
 
 func StartTeleBot(botToken string) (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel, error) {
 	bot, err := tgbotapi.NewBotAPI(botToken)
@@ -27,8 +27,74 @@ func StartTeleBot(botToken string) (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel, e
 	return bot, updates, err
 }
 
+func keyboardToMarkup(keyboard KeyboardLayout) tgbotapi.InlineKeyboardMarkup {
+	layout := [][]tgbotapi.InlineKeyboardButton{}
+	if len(keyboard) != 0 {
+		layout = make([][]tgbotapi.InlineKeyboardButton, len(keyboard))
+		for row, rowItem := range(keyboard) {
+			layout[row] = make([]tgbotapi.InlineKeyboardButton, len(rowItem))
+			for col, colItem := range(rowItem) {
+				layout[row][col] = 
+					tgbotapi.InlineKeyboardButton{
+							Text: colItem.Text,
+							CallbackData: &colItem.Id,
+					}
+			}
+		}
+	}
+	return tgbotapi.InlineKeyboardMarkup{ InlineKeyboard: layout }
+}
+
+var globalDialog *Dialog
+
+func sendMessageToBot(bot *tgbotapi.BotAPI, outMsg OutMessage, chatId int64) {
+	if outMsg.ReplyToMessageId != 0 && outMsg.IsKeyboardMsg {
+		layout := keyboardToMarkup(outMsg.Keyboard)
+		msg := tgbotapi.NewEditMessageReplyMarkup(chatId, outMsg.ReplyToMessageId, layout)
+		bot.Send(msg)
+		return
+	}
+	msg := tgbotapi.NewMessage(chatId, outMsg.Text)
+	msg.ParseMode = tgbotapi.ModeMarkdown
+	if len(outMsg.Keyboard) != 0 {
+		layout := keyboardToMarkup(outMsg.Keyboard)
+		msg.ReplyMarkup = &layout
+	}
+	bot.Send(msg)
+}
+
+func getDialog(bot *tgbotapi.BotAPI, dataRootDir string, chatId int64, username string) *Dialog {
+	if globalDialog != nil {
+		return globalDialog
+	}
+	sender := func (outMsg OutMessage) {
+					sendMessageToBot(bot, outMsg, chatId)
+				}
+	dialogHandler, errDlgHndl := NewNavigationHandler(sender, dataRootDir) //NewInputTestHandler(sender, dataRootDir)
+	if errDlgHndl != nil {
+		return nil
+	}
+	globalDialog = NewDialog(sender, time.Second * 30, username, dialogHandler)
+	return globalDialog
+}
+
 func ProcessTeleBotUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, dataRootDir string) {
+	if update.CallbackQuery != nil {
+		message := update.CallbackQuery.Message
+		if message == nil {
+			log.Printf("[%s] No message in callback query, ignored", message.From.UserName)
+			return
+		}
+		callbackData := update.CallbackQuery.Data
+		if len(callbackData) != 0 {
+			dialog := getDialog(bot, dataRootDir, message.Chat.ID, message.From.UserName)
+			dialog.OnKey(callbackData, message.MessageID)
+		}
+		return
+	}
+
 	if update.Message == nil {
+		log.Printf("[%d] No message in update", update.UpdateID)
 		return
 	}
 	
@@ -36,34 +102,12 @@ func ProcessTeleBotUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, dataRoot
 
 	log.Printf("[%s] %s", message.From.UserName, message.Text)
 	
+	dialog := getDialog(bot, dataRootDir, message.Chat.ID, message.From.UserName)
 	if(dialog == nil) {
-		sender := func (outMsg OutMessage) {
-						msg := tgbotapi.NewMessage(message.Chat.ID, "")
-						msg.ParseMode = tgbotapi.ModeMarkdown
-						msg.Text = outMsg.Text
-						/*a := "1"
-						msg.ReplyMarkup = &tgbotapi.InlineKeyboardMarkup{
-											InlineKeyboard: [][]tgbotapi.InlineKeyboardButton{ 
-																[]tgbotapi.InlineKeyboardButton{ 
-																	tgbotapi.InlineKeyboardButton{Text: "1", CallbackData: &a, },
-																	tgbotapi.InlineKeyboardButton{Text: "2", CallbackData: &a, },
-																},
-											},
-										  }
-						*/
-						bot.Send(msg)
-					}
-		//systemHandler := 
-		dialogHandler, errDlgHndl := NewInputTestHandler(sender, dataRootDir)
-		if errDlgHndl != nil {
-			return
-		}
-		dialog = NewDialog( sender,
-							time.Second * 30,
-							message.Chat.UserName,
-							dialogHandler)
+		log.Printf("[%s] Failed to create a dialog", message.From.UserName)
+		return
 	}
-
+	
 	if message.IsCommand() {
 		args := strings.Split(message.CommandArguments(), " ")
 		dialog.OnCommand(message.Command(), args)

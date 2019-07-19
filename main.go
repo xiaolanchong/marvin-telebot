@@ -1,13 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-	"fmt"
-	
+
 	"marvin-telebot/bot"
 
 	"github.com/gin-gonic/gin"
@@ -35,33 +35,34 @@ func runHeroku() {
 
 func runTelebot() {
 	fmt.Printf("Starting pulling bot...\n")
-	
+
 	botToken := os.Getenv("BOT_TOKEN")
 	if len(botToken) == 0 {
 		panic("BOT_TOKEN env variable not set")
 	}
-	
+
 	dataRootDir := os.Getenv("DATA_ROOT")
-	
+
 	newBot, updates, err := bot.StartTeleBot(botToken)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
-	go func(){
+	go func() {
 		for {
-			select
-			{
-			case <- c:
+			select {
+			case <-c:
 				os.Exit(1)
-			case update := <- updates:
+			case update := <-updates:
 				bot.ProcessTeleBotUpdate(newBot, update, dataRootDir)
 			}
 		}
 	}()
-	for { time.Sleep(10 * time.Second) }
+	for {
+		time.Sleep(10 * time.Second)
+	}
 }
 
 func main() {

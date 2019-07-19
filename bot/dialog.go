@@ -13,6 +13,8 @@ type command struct {
 type action struct {
 	Command		*command
 	Message 	*string
+	Key			*string
+	MessageId	int
 	Timeout 	bool
 }
 
@@ -62,6 +64,8 @@ func NewDialog(Sender Sender, timeout time.Duration, username string, dlgHandler
 				this.stopTimer()
 				this.DialogHandler.ProcessMessage(*act.Message)
 				
+			} else if(act.Key != nil) {
+				this.DialogHandler.ProcessKeyboard(*act.Key, act.MessageId)
 			} else if(act.Command != nil) {
 				this.stopTimer()
 				var textResponse string
@@ -83,6 +87,10 @@ func (dialog *Dialog) OnCommand(cmd string, args []string) {
 
 func (dialog *Dialog) OnMessage(text string) {
 	dialog.ActionChannel <- action{ Message: &text }
+}
+
+func (dialog *Dialog) OnKey(keyId string, messageId int) {
+	dialog.ActionChannel <- action{ Key: &keyId, MessageId: messageId }
 }
 
 func (dialog *Dialog) stopTimer() {
