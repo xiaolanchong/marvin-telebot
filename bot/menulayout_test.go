@@ -1,12 +1,35 @@
 package bot
 
 import (
-	//"strings"
 	"testing"
-	//"log"
-	//"os"
-	//"path/filepath"
+	"os"
+	"path/filepath"
 )
+
+var testMultipleChoiceFileName string
+
+func init() {
+	dataRootDir := os.Getenv("DATA_ROOT")
+	testMultipleChoiceFileName = filepath.Join(dataRootDir, MockTest1Dir, ListeningTestFileName)
+}
+
+func Test_LoadMultipleChoiceTest(t *testing.T) {
+	root, err := LoadMultipleChoiceTest(testMultipleChoiceFileName)
+	if err != nil {
+		t.Errorf("Failed to load multiple choice test: %+v", err)
+		return
+	}
+	
+	if len(root.Title) <= 2 {
+		t.Errorf("Incorrect section title: %+v, %+v", len(root.Title), root.Title)
+		return
+	}
+	
+	if len(root.Question) < 2 {
+		t.Errorf("Incorrect question number: %+v, %+v", len(root.Question), root.Question)
+		return
+	}
+}
 
 func TestMenu_Empty(t *testing.T) {
 	menu := NewMenuLayout()
@@ -104,20 +127,8 @@ func TestMenu_TwoLevel(t *testing.T) {
 		t.Errorf("item not selected: %+v", id1)
 	}
 	layout = menu.GetCurrentLevel()
-	if len(layout) != 0 {
-		t.Errorf("Incorrect menu item number: %+v, \n%+v, \n%+v", len(layout), layout, menu)
-		return
-	}
-	
-	menu.GoUp()
-	layout = menu.GetCurrentLevel()
 	if len(layout) != 1 {
-		t.Errorf("Incorrect menu item number: %+v, %+v", len(layout), menu)
-		return
-	}
-	if layout[0].Id != id1_1 {
-		t.Errorf("Incorrect menu item number: %+v, %+v", layout[0].Id, menu)
-		return
+		t.Errorf("Incorrect menu item number: %+v, \n%+v, \n%+v", len(layout), layout, menu)
 	}
 	
 	menu.GoUp() // top

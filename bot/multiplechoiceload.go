@@ -15,14 +15,9 @@ type MultipleChoiceQuestion struct {
 	Comment string    `json:"comment,omitempty"`
 }
 
-type MultipleChoiceSection struct {
+type MultipleChoiceLoadRoot struct {
 	Title    string                     `json:"title"`
 	Question []MultipleChoiceQuestion   `json:"question"`
-}
-
-type MultipleChoiceLoadRoot struct {
-	Description string                  `json:"description"`
-	Section		[]MultipleChoiceSection `json:"section"`
 }
 
 func LoadMultipleChoiceTest(filename string) (MultipleChoiceLoadRoot, error) {

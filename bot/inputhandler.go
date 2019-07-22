@@ -63,7 +63,7 @@ func (handler *InputTestHandler) ProcessCommand(cmdText string, args []string) {
 	}
 }
 
-func (handler *InputTestHandler) ProcessMessage(msg string) {
+func (handler *InputTestHandler) ProcessMessage(msg InMessage) {
 	if handler.QuizState == nil {
 		msg := fmt.Sprintf("Давайте начнём тест командой /%s", cmdTest)
 		handler.Sender(OutMessage{Text: msg})
@@ -71,7 +71,7 @@ func (handler *InputTestHandler) ProcessMessage(msg string) {
 	}
 	
 	var msgOut string
-	msgOut, handler.QuizState = input_ProcessMessage(msg, input_unitData, handler.QuizState)
+	msgOut, handler.QuizState = input_ProcessMessage(msg.Text, input_unitData, handler.QuizState)
 	if len(msgOut) != 0 {
 		handler.Sender(OutMessage{Text: msgOut})
 	}
@@ -131,10 +131,10 @@ func input_ProcessMessage(msgText string, unitData []Unit, quizState *QuizState)
 			answer = strings.Replace(question.Show, answerPlaceholder, question.Answer, -1)
 		}
 		quizState.IncorrectAnswers += 1
-		response += crossMarkEmoji + " Ошибка!\nПравильно " + answer
+		response += ErrEmoji + " Ошибка!\nПравильно " + answer
 	} else {
 		quizState.CorrectAnswers += 1
-		response += heavyCheckMarkEmoji + " Верно!"
+		response += OkEmoji + " Верно!"
 	}
 	
 	quizState.Question += 1

@@ -107,11 +107,16 @@ func (menu *MenuLayout) SelectItem(selectedId MenuItemId) error {
 	}
 	for i, child := range(menu.CurrentItem.Children) {
 		if child.Id == selectedId {
-			menu.CurrentItem = &menu.CurrentItem.Children[i]
-			if menu.CurrentItem.Handler != nil {
-				menu.CurrentItem.Handler()
+			if len(child.Children) != 0 {
+				menu.CurrentItem = &menu.CurrentItem.Children[i]
 			}
-			return nil
+			if child.Handler != nil {
+				child.Handler()
+				return nil
+			} else if (len(child.Children) != 0) { // ok not to have handler for a parent
+				return nil
+			}
+			return fmt.Errorf("No current item handler set for a menu item without children")
 		}
 	}
 	return fmt.Errorf("Item with id=%d not found", selectedId)

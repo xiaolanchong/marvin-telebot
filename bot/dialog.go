@@ -12,7 +12,7 @@ type command struct {
 
 type action struct {
 	Command		*command
-	Message 	*string
+	Message 	*InMessage
 	Key			*string
 	MessageId	int
 	Timeout 	bool
@@ -30,6 +30,10 @@ type Dialog struct {
 }
 
 func NewDialog(Sender Sender, timeout time.Duration, username string, dlgHandler DialogHandler) *Dialog {
+	if dlgHandler == nil {
+		return nil
+	}
+	
 	this := &Dialog{
 		Username: username,
 		Sender: Sender,
@@ -39,9 +43,6 @@ func NewDialog(Sender Sender, timeout time.Duration, username string, dlgHandler
 		DialogHandler: dlgHandler,
 	}
 	this.Timer.Stop()
-	if this.DialogHandler == nil {
-		return nil
-	}
 
 	go func() {
 		for range this.Timer.C {
@@ -56,7 +57,7 @@ func NewDialog(Sender Sender, timeout time.Duration, username string, dlgHandler
 				this.Sender(OutMessage{Text: "Conversation ended"} )
 				
 			} else if(act.Message != nil) {
-				log.Printf("[%s]Message %s received", this.Username, *act.Message)
+				log.Printf("[%s]Message id=%v, text=%s received", this.Username, act.Message.MessageId, act.Message.Text)
 				this.stopTimer()
 				this.DialogHandler.ProcessMessage(*act.Message)
 				
@@ -81,8 +82,8 @@ func (dialog *Dialog) OnCommand(cmd string, args []string) {
 	dialog.ActionChannel <- action{ Command: &command {Command: cmd, Args: args } }
 }
 
-func (dialog *Dialog) OnMessage(text string) {
-	dialog.ActionChannel <- action{ Message: &text }
+func (dialog *Dialog) OnMessage(msg InMessage) {
+	dialog.ActionChannel <- action{ Message: &msg }
 }
 
 func (dialog *Dialog) OnKey(keyId string, messageId int) {

@@ -6,6 +6,7 @@ import (
 
 var promptToStart = "Давайте начнём тест командой /" + cmdStart
 
+/*
 var helpMessage = "Марвин - телеграм-бот для тестирования корейского языка.\n" +
 				"Команды:\n" +
 				"/" + cmdStart + "        Начать работу с ботом\n" +
@@ -13,6 +14,13 @@ var helpMessage = "Марвин - телеграм-бот для тестиро�
 				"/" + cmdUnit  + " [N]    Показать теорию по разделу номер N (N=1..10)\n" +
 				"/" + cmdTest  + " [N.M]  Начать тест N (N=1..10)\n" +
 				"/" + cmdStop  + "        Прервать текущий тест\n" +
+				""
+*/
+var helpMessage = "Марвин - телеграм-бот для тестирования корейского языка.\n" +
+				"Команды:\n" +
+				"/" + cmdStart + "     Выбрать тест\n" +
+				"/" + cmdHelp  + "     Вывести справку\n" +
+				"/" + cmdFeedback  + " Оставить отзыв разработчикам \n" +
 				""
 
 
@@ -34,10 +42,10 @@ func (handler *SystemDialogHandler) ProcessCommand(cmdText string, args []string
 	handler.Sender(OutMessage{Text: outMsg})
 }
 
-func (handler *SystemDialogHandler) ProcessMessage(msg string) {
+func (handler *SystemDialogHandler) ProcessMessage(msg InMessage) {
 	handler.Sender(OutMessage{Text: promptToStart})
 }
 
-func (handler *SystemDialogHandler) ProcessKeyboard(key string, messageId int) {
+func (handler *SystemDialogHandler) ProcessKeyboard(key string, messageId MessageId) {
 }
 

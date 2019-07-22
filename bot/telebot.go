@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 	"strings"
+	"net/url"
 
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -54,6 +55,22 @@ func sendMessageToBot(bot *tgbotapi.BotAPI, outMsg OutMessage, chatId int64) {
 		bot.Send(msg)
 		return
 	}
+	if len(outMsg.Audio) != 0 {
+		url, errParse := url.Parse(outMsg.Audio)
+		if errParse != nil {
+			log.Printf("Bad URL to parse: %s, error: %v", outMsg.Audio, errParse)
+			return
+		}
+		audioMsg := tgbotapi.NewAudioShare(chatId, outMsg.Audio)
+		if len(outMsg.Keyboard) != 0 {
+			layout := keyboardToMarkup(outMsg.Keyboard)
+			audioMsg.ReplyMarkup = &layout
+		}
+		
+		z, err := bot.Send(audioMsg)
+		log.Printf("Audio upload %s: %v, err: %+v, params: %+v, %v", outMsg.Audio, z, err, audioMsg, url)
+		return
+	}
 	msg := tgbotapi.NewMessage(chatId, outMsg.Text)
 	msg.ParseMode = tgbotapi.ModeMarkdown
 	if len(outMsg.Keyboard) != 0 {
@@ -88,6 +105,10 @@ func ProcessTeleBotUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, dataRoot
 		callbackData := update.CallbackQuery.Data
 		if len(callbackData) != 0 {
 			dialog := getDialog(bot, dataRootDir, message.Chat.ID, message.From.UserName)
+			if dialog == nil {
+				log.Printf("[%s] Failed to create a dialog", message.From.UserName)
+				return
+			}
 			dialog.OnKey(callbackData, message.MessageID)
 		}
 		return
@@ -112,6 +133,6 @@ func ProcessTeleBotUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, dataRoot
 		args := strings.Split(message.CommandArguments(), " ")
 		dialog.OnCommand(message.Command(), args)
 	} else {
-		dialog.OnMessage(message.Text)
+		dialog.OnMessage(InMessage{ Text: message.Text, MessageId: MessageId(message.MessageID)})
 	}
 }

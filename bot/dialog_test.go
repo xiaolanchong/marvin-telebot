@@ -10,7 +10,6 @@ import (
 )
 
 var testQuizFileName string
-var testMultipleChoiceFileName string
 var dataRootDir string
 
 type MsgKeeper struct {
@@ -27,7 +26,6 @@ func (keeper *MsgKeeper) Send(outMsg OutMessage) {
 func init() {
 	dataRootDir = os.Getenv("DATA_ROOT")
 	testQuizFileName = filepath.Join(dataRootDir, "Intermediate Korean - a Grammar and Workbook", "exercises.yaml")
-	testMultipleChoiceFileName = filepath.Join(dataRootDir, "topik2_2019_mock_test1", "test.yaml")
 }
 
 func TestDialog_GrammarBook(t *testing.T) {
@@ -109,7 +107,7 @@ func TestDialog_Input_Take1stTest(t *testing.T) {
 	}
 	sender.OutMessages = make([]OutMessage, 0, 20)
 	for i := 0; i < 10; i++ {
-		dlg.OnMessage("11")
+		dlg.OnMessage(InMessage{Text: "11", MessageId: 1})
 		time.Sleep(time.Millisecond * 50)
 	}
 	if len(sender.OutMessages) != 10 {
@@ -119,37 +117,14 @@ func TestDialog_Input_Take1stTest(t *testing.T) {
 
 //---------------------------
 
-func Test_LoadMultipleChoiceTest(t *testing.T) {
-	root, err := LoadMultipleChoiceTest(testMultipleChoiceFileName)
-	if err != nil {
-		t.Errorf("Failed to load multiple choice test: %+v", err)
-		return
-	}
-	
-	if len(root.Description) < 10 {
-		t.Errorf("Incorrect description of multiple choice test: %+v, %+v", len(root.Description), root.Description)
-		return
-	}
-	if len(root.Section) != 1 {
-		t.Errorf("Incorrect section number: %+v, %+v", len(root.Section), root.Section)
-		return
-	}
-	
-	section := root.Section[0]
-	if len(section.Title) <= 2 {
-		t.Errorf("Incorrect section title: %+v, %+v", len(section.Title), section.Title)
-		return
-	}
-	
-	if len(section.Question) != 2 {
-		t.Errorf("Incorrect question number: %+v, %+v", len(section.Question), section.Question)
-		return
-	}
-}
 
 func TestDialog_MultipleChoice_Take1stTest(t *testing.T) {
 	sender := MsgKeeper{}
-	hndl, _ := NewNavigationHandler(sender.Send, dataRootDir)
+	hndl, errHndl := NewNavigationHandler(sender.Send, dataRootDir)
+	if errHndl != nil {
+		t.Errorf("Failed to create navigation handler, %v", errHndl)
+		return
+	}
 	dlg := NewDialog(sender.Send, time.Second * 5, "nemo", hndl)
 	dlg.OnCommand("start", []string{})
 	time.Sleep(time.Second * 1)
@@ -160,8 +135,9 @@ func TestDialog_MultipleChoice_Take1stTest(t *testing.T) {
 	if(len(msgs[0].Text) != 194) {
 		t.Errorf("Incorrect message length: %v bytes, %+v", len(msgs[0].Text), msgs[0])
 	}
-	if(len(msgs[0].Keyboard) != 1) {
+	if(len(msgs[0].Keyboard) < 1) {
 		t.Errorf("Incorrect message length: %v bytes, %+v", len(msgs[0].Keyboard), msgs[0])
+		return
 	}
 	if(len(msgs[0].Keyboard[0]) != 1) {
 		t.Errorf("Incorrect message length: %v bytes, %+v", len(msgs[0].Keyboard[0]), msgs[0])
